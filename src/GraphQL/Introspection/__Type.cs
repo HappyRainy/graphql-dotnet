@@ -25,10 +25,10 @@ namespace GraphQL.Introspection
                 {
                     return KindForInstance((GraphType)context.Source);
                 }
-                if (context.Source is Type)
-                {
-                    return KindForType((Type)context.Source);
-                }
+//                if (context.Source is Type)
+//                {
+//                    return KindForType((Type)context.Source);
+//                }
 
                 throw new ExecutionError("Unkown kind of type: {0}".ToFormat(context.Source));
             });
@@ -36,19 +36,19 @@ namespace GraphQL.Introspection
             {
                 if (context.Source is Type)
                 {
-                    var type = (Type) context.Source;
-
-                    if (typeof (NonNullGraphType).GetTypeInfo().IsAssignableFrom(type)
-                        || typeof (ListGraphType).GetTypeInfo().IsAssignableFrom(type))
-                    {
-                        return null;
-                    }
-
-                    var resolved = context.Schema.FindType(type);
-                    return resolved.Name;
+//                    var type = (Type) context.Source;
+//
+//                    if (typeof (NonNullGraphType).GetTypeInfo().IsAssignableFrom(type)
+//                        || typeof (ListGraphType).GetTypeInfo().IsAssignableFrom(type))
+//                    {
+//                        return null;
+//                    }
+//
+//                    var resolved = context.Schema.FindType(type);
+//                    return resolved.Name;
                 }
 
-                return ((GraphType) context.Source).Name;
+                return ((IGraphType) context.Source).Name;
             });
             Field<StringGraphType>("description");
             Field<ListGraphType<NonNullGraphType<__Field>>>("fields", null,
@@ -62,7 +62,6 @@ namespace GraphQL.Introspection
                 {
                     if (context.Source is IObjectGraphType || context.Source is IInterfaceGraphType)
                     {
-                        
                         var includeDeprecated = context.GetArgument<bool>("includeDeprecated");
                         var type = context.Source as IComplexGraphType;
                         return !includeDeprecated
@@ -74,7 +73,7 @@ namespace GraphQL.Introspection
             Field<ListGraphType<NonNullGraphType<__Type>>>("interfaces", resolve: context =>
             {
                 var type = context.Source as IImplementInterfaces;
-                return type?.Interfaces;
+                return type?.ResolvedInterfaces;
             });
             Field<ListGraphType<NonNullGraphType<__Type>>>("possibleTypes", resolve: context =>
             {
@@ -115,25 +114,25 @@ namespace GraphQL.Introspection
             {
                 if (context.Source == null) return null;
 
-                if (context.Source is Type)
-                {
-                    var type = (Type) context.Source;
-                    var genericType = type.IsConstructedGenericType ? type.GetTypeInfo().GetGenericArguments()[0] : null;
-                    if (genericType != null && typeof(GraphType).GetTypeInfo().IsAssignableFrom(genericType))
-                    {
-                        return genericType;
-                    }
-                    return null;
-                }
+//                if (context.Source is Type)
+//                {
+//                    var type = (Type) context.Source;
+//                    var genericType = type.IsConstructedGenericType ? type.GetTypeInfo().GetGenericArguments()[0] : null;
+//                    if (genericType != null && typeof(GraphType).GetTypeInfo().IsAssignableFrom(genericType))
+//                    {
+//                        return genericType;
+//                    }
+//                    return null;
+//                }
 
                 if (context.Source is NonNullGraphType)
                 {
-                    return ((NonNullGraphType) context.Source).Type;
+                    return ((NonNullGraphType) context.Source).ResolvedType;
                 }
 
                 if (context.Source is ListGraphType)
                 {
-                    return ((ListGraphType) context.Source).Type;
+                    return ((ListGraphType) context.Source).ResolvedType;
                 }
 
                 return null;
